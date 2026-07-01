@@ -21,4 +21,7 @@ public class Student {
     private String email;
     private int rollNo;
     private String subject;
+
+    private Boolean deleted;
+
 }

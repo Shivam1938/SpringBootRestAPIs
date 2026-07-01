@@ -15,17 +15,12 @@ public class StudentService {
     private final StudentRepository studentRepository;
 
     public Student createStudent(Student studentReq) {
-        Optional<Student> existingStudent =
-                studentRepository.findById(studentReq.getId());
-
-        if (existingStudent.isPresent()) {
-            throw new RuntimeException("Student already exists with id: " + studentReq.getId());
-        }
+        studentReq.setDeleted(false);
         return studentRepository.save(studentReq);
     }
 
     public List<Student> getAllStudents(){
-        List<Student> studentList = studentRepository.findAll();
+        List<Student> studentList = studentRepository.findByAndDeletedIsFalse();
 
         if(studentList.isEmpty()){
             throw new RuntimeException("No students found");
@@ -35,14 +30,16 @@ public class StudentService {
     }
 
     public Student getStudentById(Long id) {
-        return studentRepository.findById(id)
+        return (Student) studentRepository.findByIdAndDeletedIsFalse(id)
                 .orElseThrow(() ->
                         new RuntimeException("Student not found with id: " + id));
+
+
     }
 
     public Student updateStudent(Student studentReq, Long id) {
 
-        Student existingStudent = studentRepository.findById(id)
+        Student existingStudent = (Student) studentRepository.findByIdAndDeletedIsFalse(id)
                 .orElseThrow(() ->
                         new RuntimeException("Student not found with id: " + id));
 
@@ -51,6 +48,8 @@ public class StudentService {
         existingStudent.setEmail(studentReq.getEmail());
         existingStudent.setRollNo(studentReq.getRollNo());
         existingStudent.setSubject(studentReq.getSubject());
+
+        existingStudent.setDeleted(false);
 
         return studentRepository.save(existingStudent);
     }
@@ -63,6 +62,19 @@ public class StudentService {
         if (studentRepository.existsById(id)) {
             studentRepository.delete(existingStudent);
         }
+    }
+
+    public Boolean deleteStudentSoftly(Long id) {
+        Optional<Student> existingStudent =
+                studentRepository.findByIdAndDeletedIsFalse(id);
+        if(existingStudent.isEmpty()){
+            throw new RuntimeException("Student not found with id: " + id);
+        }
+        Student studentTosave = existingStudent.get();
+
+        studentTosave.setDeleted(true);
+        studentRepository.save(studentTosave);
+        return true;
     }
 
 }

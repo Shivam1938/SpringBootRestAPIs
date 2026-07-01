@@ -1,6 +1,15 @@
-# CRUD Spring Boot API
+# Student Management CRUD API
 
-A simple CRUD REST API built using **Spring Boot**, **Spring Data JPA**, and **MySQL** for managing student records.
+A RESTful CRUD API built using **Spring Boot**, **Spring Data JPA**, and **MySQL** for managing student records.
+
+This project supports:
+- Create Student
+- Read Student
+- Update Student
+- Hard Delete
+- Soft Delete
+
+---
 
 ## Features
 
@@ -8,10 +17,11 @@ A simple CRUD REST API built using **Spring Boot**, **Spring Data JPA**, and **M
 - Get All Students
 - Get Student By ID
 - Update Student
-- Delete Student
-- Global Exception Handling
+- Hard Delete Student
+- Soft Delete Student
 - Custom API Response Structure
-- Swagger UI Documentation
+- MySQL Integration
+- Spring Data JPA
 
 ---
 
@@ -22,21 +32,21 @@ A simple CRUD REST API built using **Spring Boot**, **Spring Data JPA**, and **M
 - Spring Data JPA
 - MySQL
 - Maven
-- Swagger UI (OpenAPI)
+- Lombok
 
 ---
 
 ## Project Structure
 
 ```bash
-src/main/java/com/springboot/CRUD_springboot
+src/main/java/com/springboot/CRUD_springboot/
 │
 ├── controller
-├── service
-├── repository
 ├── entity
+├── repository
+├── service
 ├── utilities
-└── ApiResponse
+└── CrudSpringbootApplication.java
 ```
 
 ---
@@ -44,63 +54,68 @@ src/main/java/com/springboot/CRUD_springboot
 ## API Base URL
 
 ```bash
-http://localhost:8080/api/v1
+http://localhost:8080/students
 ```
 
 ---
 
-## Endpoints
+# API Endpoints
 
-### Create Student
+## 1. Create Student
 
 ```http
-POST /students
+POST /create
 ```
 
-Sample Request:
+Request Body:
 
 ```json
 {
-  "id": 1,
   "name": "Shivam Mishra",
   "age": 23,
   "email": "shivam@gmail.com",
   "rollNo": 101,
-  "subject": "Computer Science"
+  "subject": "CSE"
 }
 ```
 
 ---
 
-### Get All Students
+## 2. Get All Students
 
 ```http
-GET /students
+GET /get-all
+```
+
+Returns all students where:
+
+```java
+deleted = false
 ```
 
 ---
 
-### Get Student By ID
+## 3. Get Student By ID
 
 ```http
-GET /students/{id}
+GET /get?id=1
 ```
 
 Example:
 
-```http
-GET /students/1
+```bash
+http://localhost:8080/students/get?id=1
 ```
 
 ---
 
-### Update Student
+## 4. Update Student
 
 ```http
-PUT /students/{id}
+PUT /update?id=1
 ```
 
-Sample Request:
+Request Body:
 
 ```json
 {
@@ -108,30 +123,54 @@ Sample Request:
   "age": 24,
   "email": "updated@gmail.com",
   "rollNo": 102,
-  "subject": "Mathematics"
+  "subject": "ECE"
 }
 ```
 
 ---
 
-### Delete Student
+## 5. Hard Delete Student
 
 ```http
-DELETE /students/{id}
+DELETE /delete?id=1
 ```
+
+This permanently deletes student data from database.
 
 ---
 
-## API Response Format
+## 6. Soft Delete Student
+
+```http
+PATCH /delete-soft?id=1
+```
+
+Soft delete means:
+- Student is not removed from database
+- `deleted = true`
+
+Soft deleted students are hidden from:
+- Get All Students
+- Get Student By ID
+- Update Student
+
+---
+
+# API Response Format
 
 Success Response:
 
 ```json
 {
-  "message": "Student fetched successfully",
+  "message": "Student created successfully",
   "data": {
     "id": 1,
-    "name": "Shivam Mishra"
+    "name": "Shivam Mishra",
+    "age": 23,
+    "email": "shivam@gmail.com",
+    "rollNo": 101,
+    "subject": "CSE",
+    "deleted": false
   }
 }
 ```
@@ -146,16 +185,6 @@ Error Response:
 
 ---
 
-## Swagger UI Documentation
-
-Access API documentation here:
-
-```bash
-http://localhost:8080/api/v1/swagger-ui/index.html
-```
-
----
-
 ## Database Configuration
 
 Update `application.properties`
@@ -164,7 +193,9 @@ Update `application.properties`
 spring.datasource.url=jdbc:mysql://localhost:3306/student_crud_db
 spring.datasource.username=root
 spring.datasource.password=your_password
+
 spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
 ```
 
 ---
@@ -193,9 +224,11 @@ mvn spring-boot:run
 
 ## Future Improvements
 
+- Global Exception Handling
+- DTO Layer
 - Validation using Bean Validation
+- Swagger/OpenAPI
 - JWT Authentication
-- Unit Testing
 - Docker Deployment
 
 ---

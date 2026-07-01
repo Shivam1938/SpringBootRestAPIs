@@ -17,8 +17,9 @@ public class StudentController{
 
     private final StudentService studentService;
 
-    @PostMapping("")
+    @PostMapping("/create")
     public ResponseEntity<ApiResponse<Student>> createStudent(@RequestBody Student studentReq) {
+        studentReq.setDeleted(false);
         Student studentRes = studentService.createStudent(studentReq);
 
         ApiResponse<Student> response =
@@ -30,7 +31,7 @@ public class StudentController{
 
     }
 
-    @GetMapping("")
+    @GetMapping("/get-all")
     public ResponseEntity<ApiResponse<List<Student>>> getAllStudents() {
         List<Student> studentList = studentService.getAllStudents();
 
@@ -40,8 +41,8 @@ public class StudentController{
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Student>> getStudentById(@PathVariable Long id) {
+    @GetMapping("/get")
+    public ResponseEntity<ApiResponse<Student>> getStudentById(@RequestParam Long id) {
         Student student = studentService.getStudentById(id);
 
         ApiResponse<Student>
@@ -50,8 +51,8 @@ public class StudentController{
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<Student>> updateStudent(@RequestBody Student studentReq, @PathVariable Long id) {
+    @PutMapping("/update")
+    public ResponseEntity<ApiResponse<Student>> updateStudent(@RequestBody Student studentReq, @RequestParam Long id) {
         Student studentRes = studentService.updateStudent(studentReq, id);
 
         ApiResponse<Student> response =
@@ -63,8 +64,8 @@ public class StudentController{
 
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Student>> deleteStudentById(@PathVariable Long id) {
+    @DeleteMapping("/delete")
+    public ResponseEntity<ApiResponse<Student>> deleteStudentById(@RequestParam Long id) {
         studentService.deleteStudentById(id);
 
         ApiResponse<Student> response =
@@ -72,5 +73,20 @@ public class StudentController{
 
         return ResponseEntity.ok(response);
 
+    }
+
+    @PatchMapping("/delete-soft")
+    public ResponseEntity<ApiResponse<String>> deleteStudentSoftly(@RequestParam Long id) {
+        Boolean isDeleted = studentService.deleteStudentSoftly(id);
+
+        if (isDeleted) {
+            return ResponseEntity.ok(
+                    new ApiResponse<>("Student soft deleted successfully", null)
+            );
+        }
+
+        return ResponseEntity.badRequest().body(
+                new ApiResponse<>("Student delete failed", null)
+        );
     }
 }
